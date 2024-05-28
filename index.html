@@ -1,0 +1,94 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+   <style>
+/* public/styles.css */
+body {
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+#gallery img {
+    max-width: 150px;
+    height: auto;
+}
+
+   </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload Images</h1>
+        <form id="uploadForm">
+            <input type="file" id="file1">
+            <input type="file" id="file2">
+            <input type="file" id="file3">
+            <input type="file" id="file4">
+            <button type="submit">Upload</button>
+        </form>
+        <div id="message"></div>
+        <h2>Uploaded Images</h2>
+        <div id="gallery"></div>
+    </div>
+    <script>
+// public/script.js
+document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    let formData = new FormData();
+
+    for (let i = 1; i <= 4; i++) {
+        let input = document.querySelector(`#file${i}`);
+        if (input.files[0]) {
+            formData.append(`images[${i}]`, input.files[0]);
+        }
+    }
+
+    console.log(formData);
+
+    try {
+        const response = await fetch('http://localhost:3000/upload', {
+            method: 'POST',
+            body: formData
+        });
+        console.log(response);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+
+});
+
+async function loadImages() {
+    const response = await fetch('http://localhost:3000/images');
+    const images = await response.json();
+    const gallery = document.getElementById('gallery');
+      console.log(images);
+    gallery.innerHTML = '';
+    images.forEach(image => {
+        const img = document.createElement('img');
+        img.src = image.image;
+        img.alt = image.filename;
+        gallery.appendChild(img);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadImages);
+
+        </script>
+</body>
+</html>
